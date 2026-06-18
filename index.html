@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Me - لوحة التحكم</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJTL9TWvvFg2yQsCB-amzmzu58TNzQrFk",
+            authDomain: "connectme-65a90.firebaseapp.com",
+            databaseURL: "https://connectme-65a90-default-rtdb.firebaseio.com",
+            projectId: "connectme-65a90",
+            storageBucket: "connectme-65a90.firebasestorage.app",
+            messagingSenderId: "70213529271",
+            appId: "1:70213529271:web:95e13143e4b800200b6732"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.db = db;
+        window.dbRef = ref;
+        window.dbGet = get;
+    </script>
+    <style>
+        :root { --primary: #7c3aed; --secondary: #db2777; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #4c1d95 0%, #a21caf 100%); min-height: 100vh; margin: 0; padding: 20px; color: #fff; box-sizing: border-box; }
+        
+        .logo-ring { width: 90px; height: 90px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; border: 3px solid transparent; background-image: linear-gradient(white, white), linear-gradient(45deg, #2563eb, #d946ef); background-origin: border-box; background-clip: content-box, border-box; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+        .logo-text { font-weight: 900; line-height: 1.1; text-align: center; }
+        .logo-text .top-txt { color: #1e3a8a; font-size: 12px; display: block; letter-spacing: 0.5px; font-family: sans-serif; }
+        .logo-text .bottom-txt { color: #d946ef; font-size: 22px; display: block; margin-top: -2px; font-family: sans-serif; }
+        
+        .container { max-width: 450px; margin: 0 auto; }
+        .card { background: rgba(255, 255, 255, 0.95); color: #333; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .package-box { background: linear-gradient(90deg, #6d28d9, #db2777); color: white; padding: 20px; border-radius: 15px; text-align: center; font-weight: bold; font-size: 24px; margin: 15px 0; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-card { background: #f3f4f6; padding: 15px; border-radius: 15px; text-align: center; }
+        .stat-val { font-size: 18px; font-weight: bold; color: #4c1d95; }
+        .progress-container { background: #eee; height: 10px; border-radius: 5px; margin: 10px 0; overflow: hidden; }
+        .progress-bar { background: #7c3aed; height: 100%; width: 0%; transition: 0.5s; }
+        
+        .btn-whatsapp { width: 100%; padding: 15px; background: #059669; color: white; border: none; border-radius: 15px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none; display: block; box-sizing: border-box; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3); transition: 0.2s; }
+        .btn-whatsapp:hover { background: #047857; }
+        
+        .btn-logout { width: 100%; padding: 12px; background: transparent; color: #ef4444; border: 2px solid #ef4444; border-radius: 15px; font-size: 15px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 15px; transition: 0.2s; box-sizing: border-box; }
+        .btn-logout:hover { background: #ef4444; color: white; }
+
+        #viewDashboard { display: none; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 16px; }
+        button.login { width: 100%; padding: 12px; background: #7c3aed; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        
+        .remember-container { display: flex; align-items: center; justify-content: flex-start; margin: 5px 5px 15px 5px; user-select: none; }
+        .remember-container input { width: 16px; height: 16px; margin: 0 0 0 8px; cursor: pointer; }
+        .remember-container label { color: #555; font-size: 14px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="logo-ring">
+        <div class="logo-text">
+            <span class="top-txt">CONNECT</span>
+            <span class="bottom-txt">me</span>
+        </div>
+    </div>
+
+    <div id="viewLogin" class="card" style="display: block;">
+        <h2 style="text-align: center; color: #7c3aed; margin-top: 0;">تسجيل الدخول</h2>
+        <input type="text" id="userInp" placeholder="اسم المستخدم">
+        <input type="password" id="passInp" placeholder="كلمة المرور">
+        
+        <div class="remember-container">
+            <input type="checkbox" id="rememberMe">
+            <label for="rememberMe">تذكر بياناتي في هذا الجهاز</label>
+        </div>
+
+        <button class="login" id="actionLogin">دخول</button>
+    </div>
+
+    <div id="viewDashboard">
+        <div class="card" style="background: transparent; color: white; box-shadow: none; padding: 10px 0; margin-bottom: 5px;">
+            <h3 id="helloUser" style="margin: 0 0 5px 0;">مرحباً بك 👋</h3>
+            <div style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: bold;">الاشتراك نشط</div>
+        </div>
+
+        <div class="package-box" id="resPackage">نوع الباقة</div>
+
+        <div class="grid">
+            <div class="card stat-card"><div>الرصيد الحالي</div><div class="stat-val" id="resBalance">0</div></div>
+            <div class="card stat-card"><div>الاستهلاك</div><div class="stat-val" id="resCons">0</div></div>
+        </div>
+
+        <div class="card">
+            <div>الأيام المتبقية</div>
+            <div class="stat-val" id="resDays" style="font-size: 24px;">0 يوم</div>
+            <div class="progress-container"><div class="progress-bar" id="progBar"></div></div>
+        </div>
+
+        <a href="https://wa.me/963957869853" id="btnWhatsapp" class="btn-whatsapp" target="_blank">طلب تجديد عبر واتساب</a>
+        <button id="actionLogout" class="btn-logout">تسجيل الخروج والرجوع</button>
+    </div>
+</div>
+
+<script type="module">
+    function cleanUsername(key) {
+        const illegalChars = ['.', '$', '[', ']', '#', '/'];
+        let newKey = String(key);
+        illegalChars.forEach(char => { newKey = newKey.split(char).join('_'); });
+        return newKey;
+    }
+
+    function formatBalance(val) {
+        let num = parseFloat(val);
+        if (isNaN(num)) return val;
+        return num.toLocaleString('en-US');
+    }
+
+    function formatUsage(val) {
+        let strVal = String(val || "0");
+        let match = strVal.match(/[\d.]+/);
+        if (!match) return val;
+        
+        let num = parseFloat(match[0]);
+        let rounded = Math.round(num * 10) / 10; 
+        return strVal.replace(match[0], rounded);
+    }
+
+    async function executeLogin(rawUsername, rawPassword, shouldRemember) {
+        if(cleanUsername(rawUsername) !== cleanUsername(rawPassword)) {
+            alert("خطأ: تأكد من البيانات");
+            return;
+        }
+
+        const firebaseKey = cleanUsername(rawUsername);
+
+        try {
+            const snapshot = await window.dbGet(window.dbRef(window.db, 'users/' + firebaseKey));
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                
+                document.getElementById('helloUser').innerText = `مرحباً بك: ${rawUsername}`;
+                document.getElementById('resPackage').innerText = data.package || "باقة مخصصة";
+                document.getElementById('resBalance').innerText = formatBalance(data.balance || "0");
+                document.getElementById('resCons').innerText = formatUsage(data.usage || "0 B");
+                
+                // --- معالج التواريخ الذكي الجديد ---
+                let daysRaw = data.daysRemaining || "30";
+                let computedDays = 30; // افتراضي
+
+                if (String(daysRaw).includes('/')) {
+                    try {
+                        // تحويل صيغة مايكروتك (jun/23/2026) إلى صيغة يفهمها المتصفح
+                        let formattedDateStr = String(daysRaw).replace(/\//g, ' ');
+                        let targetDate = new Date(formattedDateStr);
+                        let currentDate = new Date();
+                        
+                        // حساب الفارق بين اليوم وتاريخ النهاية
+                        let timeDiff = targetDate.getTime() - currentDate.getTime();
+                        computedDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                        if (computedDays < 0) computedDays = 0;
+                    } catch(err) {
+                        computedDays = parseInt(daysRaw) || 30;
+                    }
+                } else {
+                    computedDays = parseInt(daysRaw) || 0;
+                }
+
+                document.getElementById('resDays').innerText = computedDays + " يوم";
+                const percent = Math.min((computedDays / 30) * 100, 100);
+                document.getElementById('progBar').style.width = percent + "%";
+                // ----------------------------------
+
+                const whatsappText = `مرحباً، أرغب بتجديد اشتراكي في شبكة Connect Me.\n\n👤 اسم المستخدم: ${rawUsername}\n📦 الباقة الحالية: ${data.package || 'غير محددة'}`;
+                document.getElementById('btnWhatsapp').href = `https://wa.me/963957869853?text=${encodeURIComponent(whatsappText)}`;
+
+                if (shouldRemember) {
+                    localStorage.setItem('connectMe_user', rawUsername);
+                    localStorage.setItem('connectMe_pass', rawPassword);
+                } else {
+                    localStorage.removeItem('connectMe_user');
+                    localStorage.removeItem('connectMe_pass');
+                }
+
+                document.getElementById('viewLogin').style.display = 'none';
+                document.getElementById('viewDashboard').style.display = 'block';
+            } else {
+                alert("المستخدم غير موجود بقاعدة البيانات");
+            }
+        } catch(e) { 
+            alert("خطأ في الاتصال بقاعدة البيانات"); 
+        }
+    }
+
+    document.getElementById('actionLogin').addEventListener('click', function() {
+        const rawUsername = document.getElementById('userInp').value.trim(); 
+        const rawPassword = document.getElementById('passInp').value.trim();
+        const shouldRemember = document.getElementById('rememberMe').checked;
+
+        if(!rawUsername || !rawPassword) {
+            alert("يرجى إدخال اسم المشترك وكلمة المرور");
+            return;
+        }
+        executeLogin(rawUsername, rawPassword, shouldRemember);
+    });
+
+    document.getElementById('actionLogout').addEventListener('click', function() {
+        localStorage.removeItem('connectMe_user');
+        localStorage.removeItem('connectMe_pass');
+        
+        document.getElementById('userInp').value = "";
+        document.getElementById('passInp').value = "";
+        document.getElementById('rememberMe').checked = false;
+
+        document.getElementById('viewDashboard').style.display = 'none';
+        document.getElementById('viewLogin').style.display = 'block';
+    });
+
+    window.addEventListener('load', () => {
+        const savedUser = localStorage.getItem('connectMe_user');
+        const savedPass = localStorage.getItem('connectMe_pass');
+
+        if (savedUser && savedPass) {
+            document.getElementById('userInp').value = savedUser;
+            document.getElementById('passInp').value = savedPass;
+            document.getElementById('rememberMe').checked = true;
+            
+            setTimeout(() => {
+                executeLogin(savedUser, savedPass, true);
+            }, 600);
+        }
+    });
+</script>
+</body>
+</html>
